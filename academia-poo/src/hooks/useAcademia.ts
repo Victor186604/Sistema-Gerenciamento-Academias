@@ -66,7 +66,7 @@ export function useAcademia(_empresaId?: number, _academiaFiltro?: number | null
   const deletarAluno = async (id: number): Promise<string | null> => {
     try {
       await api.alunos.excluir(id);
-      setState(p => ({ ...p, alunos: p.alunos.filter(a => a.id !== id), mensalidades: p.mensalidades.filter(m => m.aluno_id !== id) }));
+      setState(p => ({ ...p, alunos: p.alunos.filter(a => a.id !== id), mensalidades: p.mensalidades.filter(m => m.alunoId !== id) }));
       return null;
     } catch (e: any) {
       return e.message;

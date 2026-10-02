@@ -10,7 +10,7 @@ interface Props { onLogout: () => void; nomeAdmin: string; }
 type Tab = 'empresas' | 'usuarios';
 
 const emptyEmpresa = { nome: '', cnpj: '', plano: 'basic' as Empresa['plano'], ativa: true };
-const emptyUsuario = { empresaId: '' as unknown as number, empresaNome: '', nome: '', email: '', papel: 'admin' as Usuario['papel'], academiaId: null as number | null, ativo: true };
+const emptyUsuario = { empresaId: '' as unknown as number, empresaNome: '' as string | undefined, nome: '', email: '', papel: 'admin' as Usuario['papel'], academiaId: null as number | null, ativo: true };
 
 export const SuperAdmin: React.FC<Props> = ({ onLogout, nomeAdmin }) => {
   const { state, adicionarEmpresa, editarEmpresa, toggleEmpresa, deletarEmpresa, adicionarUsuario, editarUsuario, toggleUsuario, deletarUsuario } = useSuperAdmin();

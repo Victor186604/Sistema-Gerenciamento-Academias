@@ -35,8 +35,25 @@ export default function App() {
   return <AcademiaApp usuario={usuario} page={page} onNavigate={setPage} onLogout={logout} />;
 }
 
-function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; page: PageName; onNavigate: (p: PageName) => void; onLogout: () => void }) {
-  const { state, carregando, adicionarAcademia, editarAcademia, adicionarInstrutor, editarInstrutor, adicionarAluno, editarAluno, deletarAluno, adicionarExercicio, editarExercicio, adicionarTreino, editarTreino, adicionarMensalidade, editarMensalidade, pagarMensalidade, deletar } = useAcademia(usuario.empresaId, usuario.academiaId);
+interface AcademiaAppProps {
+  usuario: any;
+  page: PageName;
+  onNavigate: (p: PageName) => void;
+  onLogout: () => void;
+}
+
+function AcademiaApp({ usuario, page, onNavigate, onLogout }: AcademiaAppProps) {
+  const {
+    state, carregando,
+    adicionarAcademia, editarAcademia,
+    adicionarInstrutor, editarInstrutor,
+    adicionarAluno, editarAluno, deletarAluno,
+    adicionarExercicio, editarExercicio,
+    adicionarTreino, editarTreino,
+    adicionarMensalidade, editarMensalidade,
+    pagarMensalidade, deletar,
+  } = useAcademia(usuario.empresaId, usuario.academiaId);
+
   const { toasts, toast } = useToast();
   const isOperador = usuario.papel === 'operador';
   const [title, subtitle] = pageTitle[page];
@@ -49,6 +66,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
       toast(e.message, 'error');
     }
   };
+
+  const handleDelete = (_entity: string, id: number) =>
+    toastAsync(() => deletar(_entity, id), 'Registro excluído.');
 
   if (carregando) {
     return (
@@ -75,9 +95,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'academias' && (
             <Academias
               state={state}
-              onAdd={d => toastAsync(() => adicionarAcademia(d), 'Academia cadastrada!')}
-              onEdit={(id, d) => toastAsync(() => editarAcademia(id, d), 'Academia atualizada!')}
-              onDelete={(_, id) => toastAsync(() => deletar('academias', id), 'Academia excluída.')}
+              onAdd={(d) => toastAsync(() => adicionarAcademia(d), 'Academia cadastrada!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarAcademia(id, d), 'Academia atualizada!')}
+              onDelete={handleDelete}
               toast={toast}
               readOnly={isOperador}
             />
@@ -86,9 +106,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'alunos' && (
             <Alunos
               state={state}
-              onAdd={d => toastAsync(() => adicionarAluno(d), 'Aluno cadastrado!')}
-              onEdit={(id, d) => toastAsync(() => editarAluno(id, d), 'Aluno atualizado!')}
-              onDelete={async (id) => {
+              onAdd={(d) => toastAsync(() => adicionarAluno(d), 'Aluno cadastrado!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarAluno(id, d), 'Aluno atualizado!')}
+              onDelete={async (id: number) => {
                 const err = await deletarAluno(id);
                 if (err) toast(err, 'error');
                 else toast('Aluno excluído.');
@@ -101,9 +121,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'instrutores' && (
             <Instrutores
               state={state}
-              onAdd={d => toastAsync(() => adicionarInstrutor(d), 'Instrutor cadastrado!')}
-              onEdit={(id, d) => toastAsync(() => editarInstrutor(id, d), 'Instrutor atualizado!')}
-              onDelete={(_, id) => toastAsync(() => deletar('instrutores', id), 'Instrutor excluído.')}
+              onAdd={(d) => toastAsync(() => adicionarInstrutor(d), 'Instrutor cadastrado!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarInstrutor(id, d), 'Instrutor atualizado!')}
+              onDelete={handleDelete}
               toast={toast}
             />
           )}
@@ -111,9 +131,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'treinos' && (
             <Treinos
               state={state}
-              onAdd={d => toastAsync(() => adicionarTreino(d), 'Treino cadastrado!')}
-              onEdit={(id, d) => toastAsync(() => editarTreino(id, d), 'Treino atualizado!')}
-              onDelete={(_, id) => toastAsync(() => deletar('treinos', id), 'Treino excluído.')}
+              onAdd={(d) => toastAsync(() => adicionarTreino(d), 'Treino cadastrado!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarTreino(id, d), 'Treino atualizado!')}
+              onDelete={handleDelete}
               toast={toast}
             />
           )}
@@ -121,9 +141,9 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'exercicios' && (
             <Exercicios
               state={state}
-              onAdd={d => toastAsync(() => adicionarExercicio(d), 'Exercício cadastrado!')}
-              onEdit={(id, d) => toastAsync(() => editarExercicio(id, d), 'Exercício atualizado!')}
-              onDelete={(_, id) => toastAsync(() => deletar('exercicios', id), 'Exercício excluído.')}
+              onAdd={(d) => toastAsync(() => adicionarExercicio(d), 'Exercício cadastrado!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarExercicio(id, d), 'Exercício atualizado!')}
+              onDelete={handleDelete}
               toast={toast}
             />
           )}
@@ -131,10 +151,10 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: { usuario: any; pa
           {page === 'mensalidades' && (
             <Mensalidades
               state={state}
-              onAdd={d => toastAsync(() => adicionarMensalidade(d), 'Mensalidade lançada!')}
-              onEdit={(id, d) => toastAsync(() => editarMensalidade(id, d), 'Mensalidade atualizada!')}
-              onPagar={id => toastAsync(() => pagarMensalidade(id), 'Mensalidade paga!')}
-              onDelete={(_, id) => toastAsync(() => deletar('mensalidades', id), 'Mensalidade excluída.')}
+              onAdd={(d) => toastAsync(() => adicionarMensalidade(d), 'Mensalidade lançada!')}
+              onEdit={(id: number, d: any) => toastAsync(() => editarMensalidade(id, d), 'Mensalidade atualizada!')}
+              onPagar={(id: number) => toastAsync(() => pagarMensalidade(id), 'Mensalidade paga!')}
+              onDelete={handleDelete}
               toast={toast}
             />
           )}
