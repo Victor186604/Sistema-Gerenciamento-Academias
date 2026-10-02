@@ -1,0 +1,32 @@
+# FitLife
+
+FitLife é um sistema SaaS de gestão para academias, desenvolvido no Brasil.
+
+## O que é
+
+Software web para gestão operacional de academias de ginástica e musculação.
+
+## Funcionalidades principais
+
+- Cadastro e gestão de alunos
+- Cadastro e gestão de instrutores
+- Montagem de treinos personalizados com biblioteca de exercícios
+- Controle de mensalidades e pagamentos
+- Suporte a múltiplas unidades por empresa (multiempresa)
+- Controle de acesso por perfil: superadmin, admin e operador
+
+## Tecnologia
+
+- Frontend: React + TypeScript (SPA)
+- Backend: Node.js + Express
+- Banco de dados: PostgreSQL
+- Autenticação: JWT
+
+## Acesso
+
+O sistema é totalmente autenticado. Não há conteúdo público indexável.
+Acesso somente mediante credenciais fornecidas pelo administrador.
+
+## Contato
+
+Para informações comerciais, acesse: https://DOMINIO.com/

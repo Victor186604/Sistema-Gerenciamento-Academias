@@ -1,0 +1,11 @@
+# FitLife - Sistema de Gestão de Academia
+# O FitLife é uma aplicação SaaS autenticada.
+# Não há páginas públicas indexáveis além da raiz (tela de login).
+
+User-agent: *
+Disallow: /
+
+# Quando houver landing page pública separada, libere apenas ela:
+# Allow: /
+
+Sitemap: https://DOMINIO.com/sitemap.xml
