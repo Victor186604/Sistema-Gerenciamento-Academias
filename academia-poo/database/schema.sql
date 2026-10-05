@@ -1,12 +1,10 @@
 -- ============================================================
--- FitLife Academia - Schema PostgreSQL
+-- FitLife Academia — Schema para Neon PostgreSQL
+-- Cole este arquivo no SQL Editor do Neon e execute
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- -------------------------------------------------------
--- EMPRESAS (tenant raiz)
--- -------------------------------------------------------
 CREATE TABLE empresas (
   id          SERIAL PRIMARY KEY,
   nome        VARCHAR(120) NOT NULL,
@@ -16,9 +14,6 @@ CREATE TABLE empresas (
   criada_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- -------------------------------------------------------
--- USUÁRIOS
--- -------------------------------------------------------
 CREATE TABLE usuarios (
   id          SERIAL PRIMARY KEY,
   empresa_id  INT          REFERENCES empresas(id) ON DELETE CASCADE,
@@ -32,12 +27,6 @@ CREATE TABLE usuarios (
   criado_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-COMMENT ON COLUMN usuarios.academia_id IS
-  'NULL = acesso a todas as academias da empresa; preenchido = acesso apenas a essa academia';
-
--- -------------------------------------------------------
--- ACADEMIAS
--- -------------------------------------------------------
 CREATE TABLE academias (
   id          SERIAL PRIMARY KEY,
   empresa_id  INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
@@ -49,29 +38,22 @@ CREATE TABLE academias (
   criada_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- FK circular resolvida após criação da tabela
 ALTER TABLE usuarios
   ADD CONSTRAINT fk_usuario_academia
   FOREIGN KEY (academia_id) REFERENCES academias(id) ON DELETE SET NULL;
 
--- -------------------------------------------------------
--- INSTRUTORES
--- -------------------------------------------------------
 CREATE TABLE instrutores (
-  id           SERIAL PRIMARY KEY,
-  empresa_id   INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
-  academia_id  INT          REFERENCES academias(id) ON DELETE SET NULL,
-  nome         VARCHAR(120) NOT NULL,
-  cpf          VARCHAR(20)  NOT NULL,
-  idade        SMALLINT,
+  id            SERIAL PRIMARY KEY,
+  empresa_id    INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  academia_id   INT          REFERENCES academias(id) ON DELETE SET NULL,
+  nome          VARCHAR(120) NOT NULL,
+  cpf           VARCHAR(20)  NOT NULL,
+  idade         SMALLINT,
   especialidade VARCHAR(80),
-  criado_em    TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  criado_em     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   UNIQUE (empresa_id, cpf)
 );
 
--- -------------------------------------------------------
--- EXERCICIOS
--- -------------------------------------------------------
 CREATE TABLE exercicios (
   id          SERIAL PRIMARY KEY,
   empresa_id  INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
@@ -82,9 +64,6 @@ CREATE TABLE exercicios (
   criado_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- -------------------------------------------------------
--- TREINOS
--- -------------------------------------------------------
 CREATE TABLE treinos (
   id           SERIAL PRIMARY KEY,
   empresa_id   INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
@@ -100,9 +79,6 @@ CREATE TABLE treino_exercicios (
   PRIMARY KEY (treino_id, exercicio_id)
 );
 
--- -------------------------------------------------------
--- ALUNOS
--- -------------------------------------------------------
 CREATE TABLE alunos (
   id           SERIAL PRIMARY KEY,
   empresa_id   INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
@@ -119,24 +95,19 @@ CREATE TABLE alunos (
   UNIQUE (empresa_id, matricula)
 );
 
--- -------------------------------------------------------
--- MENSALIDADES
--- -------------------------------------------------------
 CREATE TABLE mensalidades (
   id          SERIAL PRIMARY KEY,
-  empresa_id  INT          NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
-  aluno_id    INT          NOT NULL REFERENCES alunos(id) ON DELETE CASCADE,
+  empresa_id  INT           NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  aluno_id    INT           NOT NULL REFERENCES alunos(id) ON DELETE CASCADE,
   valor       NUMERIC(10,2) NOT NULL,
   vencimento  DATE          NOT NULL,
-  status      VARCHAR(20)  NOT NULL DEFAULT 'Pendente'
-                           CHECK (status IN ('Pago','Pendente','Atrasado')),
+  status      VARCHAR(20)   NOT NULL DEFAULT 'Pendente'
+                            CHECK (status IN ('Pago','Pendente','Atrasado')),
   pago_em     TIMESTAMPTZ,
-  criado_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+  criado_em   TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 
--- -------------------------------------------------------
--- ÍNDICES
--- -------------------------------------------------------
+-- Índices
 CREATE INDEX idx_academias_empresa    ON academias(empresa_id);
 CREATE INDEX idx_instrutores_empresa  ON instrutores(empresa_id);
 CREATE INDEX idx_exercicios_empresa   ON exercicios(empresa_id);
@@ -148,9 +119,7 @@ CREATE INDEX idx_mensalidades_empresa ON mensalidades(empresa_id);
 CREATE INDEX idx_mensalidades_status  ON mensalidades(status);
 CREATE INDEX idx_usuarios_email       ON usuarios(email);
 
--- -------------------------------------------------------
--- VIEWS ÚTEIS
--- -------------------------------------------------------
+-- Views
 CREATE VIEW vw_mensalidades_atrasadas AS
   SELECT m.*, a.nome AS aluno_nome, a.empresa_id
   FROM mensalidades m
@@ -167,15 +136,13 @@ CREATE VIEW vw_resumo_empresa AS
     SUM(CASE WHEN m.status = 'Atrasado' THEN 1 ELSE 0 END) AS mensalidades_atrasadas,
     SUM(CASE WHEN m.status = 'Pago'     THEN m.valor ELSE 0 END) AS receita_total
   FROM empresas e
-  LEFT JOIN academias  ac ON ac.empresa_id = e.id
-  LEFT JOIN alunos     al ON al.empresa_id = e.id
-  LEFT JOIN instrutores i ON i.empresa_id = e.id
-  LEFT JOIN mensalidades m ON m.empresa_id = e.id
+  LEFT JOIN academias   ac ON ac.empresa_id = e.id
+  LEFT JOIN alunos      al ON al.empresa_id = e.id
+  LEFT JOIN instrutores  i ON  i.empresa_id = e.id
+  LEFT JOIN mensalidades m ON  m.empresa_id = e.id
   GROUP BY e.id, e.nome;
 
--- -------------------------------------------------------
--- FUNÇÃO: atualizar mensalidades vencidas automaticamente
--- -------------------------------------------------------
+-- Função para atualizar mensalidades vencidas
 CREATE OR REPLACE FUNCTION fn_atualizar_status_mensalidades()
 RETURNS void LANGUAGE plpgsql AS $$
 BEGIN
@@ -186,13 +153,12 @@ BEGIN
 END;
 $$;
 
--- -------------------------------------------------------
--- DADOS INICIAIS - Super Admin
--- -------------------------------------------------------
+-- ============================================================
+-- SUPER ADMIN inicial (troque o e-mail e a senha antes de rodar)
+-- ============================================================
 INSERT INTO empresas (nome, cnpj, plano) VALUES
   ('Administração FitLife', '00.000.000/0000-00', 'enterprise');
 
 INSERT INTO usuarios (empresa_id, nome, email, senha_hash, papel) VALUES
-  (1, 'Super Admin', 'admin@fitlife.com',
-   crypt('admin123', gen_salt('bf')), 'superadmin');
-
+  (1, 'Super Admin', 'onemorecode233@gmail.com',
+   crypt('Onemorecode@1', gen_salt('bf')), 'superadmin');
