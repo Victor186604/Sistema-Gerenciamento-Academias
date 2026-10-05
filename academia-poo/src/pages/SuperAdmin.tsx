@@ -36,7 +36,7 @@ export const SuperAdmin: React.FC<Props> = ({ onLogout, nomeAdmin }) => {
   };
 
   const openNewUsuario = () => { setEditingU(null); setFormU(emptyUsuario); setModal('usuario'); };
-  const openEditUsuario = (u: Usuario) => { setEditingU(u); setFormU({ ...u, empresaId: u.empresaId ?? '' as any }); setModal('usuario'); };
+  const openEditUsuario = (u: Usuario) => { setEditingU(u); setFormU({ ...u, empresaId: u.empresaId ?? '' as any, empresaNome: u.empresaNome ?? '' }); setModal('usuario'); };
   const salvarUsuario = () => {
     if (!formU.nome || !formU.email) return;
     const dados: Omit<Usuario, 'id'> = { ...formU, empresaId: Number(formU.empresaId) || null, empresaNome: state.empresas.find(e => e.id === Number(formU.empresaId))?.nome ?? '' };
