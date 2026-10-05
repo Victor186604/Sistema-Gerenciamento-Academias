@@ -160,5 +160,5 @@ INSERT INTO empresas (nome, cnpj, plano) VALUES
   ('Administração FitLife', '00.000.000/0000-00', 'enterprise');
 
 INSERT INTO usuarios (empresa_id, nome, email, senha_hash, papel) VALUES
-  (1, 'Super Admin', 'TROQUE@SEUEMAIL.COM',
-   crypt('TROQUE_ESTA_SENHA', gen_salt('bf')), 'superadmin');
+  (1, 'Super Admin', 'onemorecode233@gmail.com',
+   crypt('Onemorecode@1', gen_salt('bf')), 'superadmin');
