@@ -6,7 +6,7 @@ interface Props {
   state: AppState;
   onAdd: (d: Omit<Aluno, 'id' | 'empresaId'>) => void;
   onEdit: (id: number, d: Omit<Aluno, 'id' | 'empresaId'>) => void;
-  onDelete: (id: number) => string | null;
+  onDelete: (id: number) => string | null | Promise<string | null>;
   toast: (msg: string, type?: 'success' | 'error') => void;
   readOnly?: boolean;
 }
@@ -37,8 +37,8 @@ export const Alunos: React.FC<Props> = ({ state, onAdd, onEdit, onDelete, toast,
     } catch (e: any) { toast(e.message, 'error'); }
   };
 
-  const handleDelete = (id: number) => {
-    const err = onDelete(id);
+  const handleDelete = async (id: number) => {
+    const err = await onDelete(id);
     if (err) { toast(err, 'error'); } else { toast('Aluno e mensalidades excluídos.'); }
     setConfirm(null);
   };

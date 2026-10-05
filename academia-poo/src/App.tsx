@@ -108,11 +108,12 @@ function AcademiaApp({ usuario, page, onNavigate, onLogout }: AcademiaAppProps) 
               state={state}
               onAdd={(d) => toastAsync(() => adicionarAluno(d), 'Aluno cadastrado!')}
               onEdit={(id: number, d: any) => toastAsync(() => editarAluno(id, d), 'Aluno atualizado!')}
-              onDelete={async (id: number) => {
-                const err = await deletarAluno(id);
-                if (err) toast(err, 'error');
-                else toast('Aluno excluído.');
-                return err;
+              onDelete={(id: number) => {
+                deletarAluno(id).then(err => {
+                  if (err) toast(err, 'error');
+                  else toast('Aluno excluído.');
+                });
+                return null;
               }}
               toast={toast}
             />
